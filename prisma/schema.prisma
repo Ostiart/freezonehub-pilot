@@ -1,0 +1,56 @@
+// FreeZoneHub — Field pilot schema
+// Trimmed for a fast, single-app deploy to test with real companies.
+// Keeps the core mechanism: company gets a shareable slug + QR, buyers
+// land on the showroom, products carry the fields that came from real
+// examples (Royco, the sandal reference, the Delta backpack, the Honduras
+// invoice). Chat/Agenda/multi-buyer-auth are simplified for the pilot —
+// the full NestJS backend (packages/prisma) is the long-term system.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  ownerToken     String    @unique // simple pilot-grade auth: keep this link private, it's how the owner edits their showroom
+  name           String
+  category       String
+  foundedYear    Int?
+  visibility     String    @default("PUBLIC") // PUBLIC | PRIVATE — SEMI_PRIVATE comes back in the full platform
+  whatsappNumber String?
+  shippingCountries String[] @default([])
+  isVerified     Boolean   @default(false)
+  products       Product[]
+  createdAt      DateTime  @default(now())
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  company       Company  @relation(fields: [companyId], references: [id])
+  companyId     String
+  name          String
+  masterRef     String?
+  moqLabel      String?
+  packingLabel  String?  // e.g. "Assorted dozen: sizes 35-40" — from the Honduras invoice case
+  priceMode     String   @default("quote") // "quote" | "fixed"
+  priceValue    Float?
+  isExclusive   Boolean  @default(false)
+  variants      ProductVariant[]
+  createdAt     DateTime @default(now())
+}
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  type      String  // "COLOR" | "TEXTURE"
+  label     String
+  colorHex  String?
+  photoUrl  String?
+}
