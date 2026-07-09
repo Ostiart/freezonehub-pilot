@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
@@ -13,6 +13,14 @@ export default function ShowroomPage() {
   const [notFound, setNotFound] = useState(false);
   const ownerTokenFromUrl = searchParams.get('ownerToken');
   const welcome = searchParams.get('welcome') === '1';
+  const [activeSlide, setActiveSlide] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  function handleCarouselScroll() {
+    const el = carouselRef.current;
+    if (!el) return;
+    setActiveSlide(Math.round(el.scrollLeft / el.clientWidth));
+  }
 
   useEffect(() => {
     const storedToken = typeof window !== 'undefined' ? localStorage.getItem(`fzh_owner_${slug}`) : null;
@@ -48,6 +56,13 @@ export default function ShowroomPage() {
   const waLink = company.whatsappNumber
     ? `https://wa.me/${company.whatsappNumber.replace(/[^0-9]/g, '')}`
     : null;
+  const photos: string[] = company.businessPhotos ?? [];
+  const initials = company.name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w: string) => w[0]?.toUpperCase())
+    .join('');
 
   return (
     <div className="container">
@@ -59,14 +74,75 @@ export default function ShowroomPage() {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-        <div>
-          <p style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>{company.name}</p>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '2px 0 0' }}>
-            {company.category}{company.foundedYear ? ` · Est. ${company.foundedYear}` : ''}
-          </p>
+      <div style={{ position: 'relative' }}>
+        <div
+          ref={carouselRef}
+          onScroll={handleCarouselScroll}
+          className="carousel-scroll"
+          style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', height: 140, borderRadius: 16 }}
+        >
+          {photos.length > 0 ? (
+            photos.map((url, i) => (
+              <img
+                key={i}
+                src={url}
+                alt={`${company.name} ${i + 1}`}
+                style={{ minWidth: '100%', height: '100%', objectFit: 'cover', scrollSnapAlign: 'start' }}
+              />
+            ))
+          ) : (
+            <div style={{ minWidth: '100%', height: '100%', scrollSnapAlign: 'start', background: 'linear-gradient(135deg, #059669, #03332a)' }} />
+          )}
         </div>
-        {company.isVerified && <span className="badge" style={{ background: 'var(--badge-green-bg)', color: 'var(--badge-green-text)' }}>Verified</span>}
+
+        {photos.length > 1 && (
+          <span
+            style={{
+              position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,0.55)', color: '#fff',
+              fontSize: 11, fontWeight: 600, padding: '2px 9px', borderRadius: 20,
+            }}
+          >
+            {activeSlide + 1}/{photos.length}
+          </span>
+        )}
+
+        {photos.length > 1 && (
+          <div style={{ position: 'absolute', bottom: 8, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 5 }}>
+            {photos.map((_, i) => (
+              <div
+                key={i}
+                style={{ width: 6, height: 6, borderRadius: '50%', background: i === activeSlide ? '#fff' : 'rgba(255,255,255,0.5)' }}
+              />
+            ))}
+          </div>
+        )}
+
+        <div
+          style={{
+            position: 'absolute', bottom: -28, left: 16, width: 56, height: 56, borderRadius: '50%',
+            background: '#fff', border: '3px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--primary)' }}>{initials}</span>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 34, marginBottom: 6 }}>
+        <p style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>{company.name}</p>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', margin: '5px 0 0' }}>
+          {company.isVerified && (
+            <span className="badge" style={{ background: 'var(--badge-green-bg)', color: 'var(--badge-green-text)' }}>
+              Verified supplier
+            </span>
+          )}
+          <span className="badge" style={{ background: 'var(--bg)', color: 'var(--text-secondary)', border: '0.5px solid var(--border)' }}>
+            {company.visibility === 'PRIVATE' ? 'Private' : 'Public'}
+          </span>
+        </div>
+        <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '6px 0 0' }}>
+          {company.category}{company.foundedYear ? ` · Est. ${company.foundedYear}` : ''}
+        </p>
       </div>
 
       <div style={{ display: 'flex', gap: 8, margin: '14px 0 18px' }}>
