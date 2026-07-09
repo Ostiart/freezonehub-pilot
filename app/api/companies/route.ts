@@ -4,7 +4,7 @@ import { slugify, generateOwnerToken } from '@/lib/slug';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, category, whatsappNumber, foundedYear, visibility } = body;
+  const { name, category, whatsappNumber, foundedYear, visibility, businessPhotos } = body;
 
   if (!name || !category) {
     return NextResponse.json({ error: 'Name and category are required' }, { status: 400 });
@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
       whatsappNumber,
       foundedYear: foundedYear ? Number(foundedYear) : undefined,
       visibility: visibility ?? 'PUBLIC',
+      businessPhotos: Array.isArray(businessPhotos) ? businessPhotos.filter((url: string) => url && url.trim()) : [],
       ownerToken: generateOwnerToken(),
     },
   });

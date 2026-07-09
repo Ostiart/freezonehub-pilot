@@ -12,8 +12,13 @@ export default function OnboardingPage() {
     foundedYear: '',
     visibility: 'PUBLIC',
   });
+  const [businessPhotos, setBusinessPhotos] = useState(['']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  function updateBusinessPhoto(i: number, value: string) {
+    setBusinessPhotos((prev) => prev.map((url, idx) => (idx === i ? value : url)));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,7 +28,7 @@ export default function OnboardingPage() {
       const res = await fetch('/api/companies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, businessPhotos: businessPhotos.filter((url) => url.trim()) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
@@ -62,6 +67,26 @@ export default function OnboardingPage() {
           <option value="PUBLIC">Public — anyone with the link can view</option>
           <option value="PRIVATE">Private — only you, via your owner link</option>
         </select>
+
+        <p style={{ fontSize: 12, fontWeight: 600, margin: '4px 0 8px' }}>
+          Fotos de tu local o sala de ventas (opcional, recomendado mínimo 6)
+        </p>
+        {businessPhotos.map((url, i) => (
+          <input
+            key={i}
+            value={url}
+            onChange={(e) => updateBusinessPhoto(i, e.target.value)}
+            placeholder="Photo URL (paste an image link)"
+          />
+        ))}
+        <button
+          type="button"
+          className="button-secondary"
+          style={{ marginBottom: 16 }}
+          onClick={() => setBusinessPhotos([...businessPhotos, ''])}
+        >
+          + Agregar otra foto
+        </button>
 
         {error && <p style={{ color: '#9B1C1C', fontSize: 12, marginBottom: 12 }}>{error}</p>}
 

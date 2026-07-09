@@ -27,6 +27,7 @@ model Company {
   shippingCountries String[] @default([])
   isVerified     Boolean   @default(false)
   coverPhotoUrl  String?
+  businessPhotos String[] @default([])
   products       Product[]
   createdAt      DateTime  @default(now())
 }
