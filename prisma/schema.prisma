@@ -26,6 +26,7 @@ model Company {
   whatsappNumber String?
   shippingCountries String[] @default([])
   isVerified     Boolean   @default(false)
+  coverPhotoUrl  String?
   products       Product[]
   createdAt      DateTime  @default(now())
 }
@@ -35,6 +36,7 @@ model Product {
   company       Company  @relation(fields: [companyId], references: [id])
   companyId     String
   name          String
+  brand         String?
   masterRef     String?
   moqLabel      String?
   packingLabel  String?  // e.g. "Assorted dozen: sizes 35-40" — from the Honduras invoice case
