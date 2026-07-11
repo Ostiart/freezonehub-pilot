@@ -13,6 +13,7 @@ export default function ShowroomPage() {
   const [notFound, setNotFound] = useState(false);
   const ownerTokenFromUrl = searchParams.get('ownerToken');
   const welcome = searchParams.get('welcome') === '1';
+  const vendedorParam = searchParams.get('vendedor');
   const [activeSlide, setActiveSlide] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -53,8 +54,12 @@ export default function ShowroomPage() {
   if (!company) return <div className="container">Loading…</div>;
 
   const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/${slug}` : '';
-  const waLink = company.whatsappNumber
-    ? `https://wa.me/${company.whatsappNumber.replace(/[^0-9]/g, '')}`
+  const matchedAdvisor = vendedorParam
+    ? (company.advisors ?? []).find((a: any) => a.paramSlug === vendedorParam)
+    : null;
+  const whatsappTarget = matchedAdvisor?.whatsappNumber || company.whatsappNumber;
+  const waLink = whatsappTarget
+    ? `https://wa.me/${whatsappTarget.replace(/[^0-9]/g, '')}`
     : null;
   const photos: string[] = company.businessPhotos ?? [];
   const initials = company.name
@@ -154,6 +159,11 @@ export default function ShowroomPage() {
         {company.isOwner && (
           <Link href={`/${slug}/products/new?ownerToken=${company.ownerTokenParam}`} className="button-secondary" style={{ textDecoration: 'none', textAlign: 'center' }}>
             + Add product
+          </Link>
+        )}
+        {company.isOwner && (
+          <Link href={`/${slug}/advisors/new?ownerToken=${company.ownerTokenParam}`} className="button-secondary" style={{ textDecoration: 'none', textAlign: 'center' }}>
+            + Add advisor
           </Link>
         )}
       </div>

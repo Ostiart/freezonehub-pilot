@@ -15,22 +15,26 @@ export default function OnboardingPage() {
   const [businessPhotos, setBusinessPhotos] = useState(['']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [duplicateWarning, setDuplicateWarning] = useState('');
 
   function updateBusinessPhoto(i: number, value: string) {
     setBusinessPhotos((prev) => prev.map((url, idx) => (idx === i ? value : url)));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function submitCompany(confirmDuplicate: boolean) {
     setLoading(true);
     setError('');
     try {
       const res = await fetch('/api/companies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, businessPhotos: businessPhotos.filter((url) => url.trim()) }),
+        body: JSON.stringify({ ...form, businessPhotos: businessPhotos.filter((url) => url.trim()), confirmDuplicate }),
       });
       const data = await res.json();
+      if (res.status === 409 && data.warning === 'duplicate') {
+        setDuplicateWarning(data.message);
+        return;
+      }
       if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
       // Save the owner token locally so this device can keep editing the showroom
       localStorage.setItem(`fzh_owner_${data.slug}`, data.ownerToken);
@@ -40,6 +44,12 @@ export default function OnboardingPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setDuplicateWarning('');
+    await submitCompany(false);
   }
 
   return (
@@ -89,6 +99,20 @@ export default function OnboardingPage() {
         </button>
 
         {error && <p style={{ color: '#9B1C1C', fontSize: 12, marginBottom: 12 }}>{error}</p>}
+
+        {duplicateWarning && (
+          <div className="card" style={{ background: 'var(--badge-exclusive-bg, #FEF3C7)', border: 'none', marginBottom: 12 }}>
+            <p style={{ fontSize: 12, margin: '0 0 8px' }}>{duplicateWarning}</p>
+            <button
+              type="button"
+              className="button-secondary"
+              onClick={() => submitCompany(true)}
+              disabled={loading}
+            >
+              Crear de todas formas
+            </button>
+          </div>
+        )}
 
         <button className="button-primary" type="submit" disabled={loading}>
           {loading ? 'Creating…' : 'Create showroom'}

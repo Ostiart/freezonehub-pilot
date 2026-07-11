@@ -18,7 +18,7 @@ datasource db {
 model Company {
   id             String    @id @default(cuid())
   slug           String    @unique
-  ownerToken     String    @unique // simple pilot-grade auth: keep this link private, it's how the owner edits their showroom
+  ownerToken     String    @unique // company admin token: keep this link private — used to add products and advisors (no public registration/login)
   name           String
   category       String
   foundedYear    Int?
@@ -29,7 +29,20 @@ model Company {
   coverPhotoUrl  String?
   businessPhotos String[] @default([])
   products       Product[]
+  advisors       Advisor[]
   createdAt      DateTime  @default(now())
+}
+
+model Advisor {
+  id             String   @id @default(cuid())
+  company        Company  @relation(fields: [companyId], references: [id])
+  companyId      String
+  name           String
+  whatsappNumber String
+  paramSlug      String   // e.g. "juan" — used as ?vendedor=juan in the showroom link
+  createdAt      DateTime @default(now())
+
+  @@unique([companyId, paramSlug])
 }
 
 model Product {
