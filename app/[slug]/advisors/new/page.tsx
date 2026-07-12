@@ -13,6 +13,7 @@ export default function NewAdvisorPage() {
     name: '',
     whatsappNumber: '',
     paramSlug: '',
+    photoUrl: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -61,6 +62,9 @@ export default function NewAdvisorPage() {
         <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '-8px 0 12px' }}>
           Será parte del link: freezonehub.com/{slug}?vendedor={form.paramSlug || '...'}
         </p>
+
+        <label>URL de la foto (opcional)</label>
+        <input value={form.photoUrl} onChange={(e) => setForm({ ...form, photoUrl: e.target.value })} placeholder="Photo URL (paste an image link)" />
 
         {error && <p style={{ color: '#9B1C1C', fontSize: 12, marginBottom: 12 }}>{error}</p>}
 

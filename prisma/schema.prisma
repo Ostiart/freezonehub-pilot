@@ -40,6 +40,7 @@ model Advisor {
   name           String
   whatsappNumber String
   paramSlug      String   // e.g. "juan" — used as ?vendedor=juan in the showroom link
+  photoUrl       String?
   createdAt      DateTime @default(now())
 
   @@unique([companyId, paramSlug])
