@@ -6,7 +6,7 @@ export async function POST(
   { params }: { params: { slug: string } },
 ) {
   const body = await req.json();
-  const { ownerToken, name, whatsappNumber, paramSlug } = body;
+  const { ownerToken, name, whatsappNumber, paramSlug, photoUrl } = body;
 
   const company = await prisma.company.findUnique({ where: { slug: params.slug } });
   if (!company) {
@@ -37,6 +37,7 @@ export async function POST(
       name,
       whatsappNumber,
       paramSlug: cleanParamSlug,
+      photoUrl: photoUrl || undefined,
     },
   });
 

@@ -25,7 +25,10 @@ export default function ShowroomPage() {
 
   useEffect(() => {
     const storedToken = typeof window !== 'undefined' ? localStorage.getItem(`fzh_owner_${slug}`) : null;
-    const ownerToken = ownerTokenFromUrl ?? storedToken;
+    // A ?vendedor= link is a buyer-facing link — never auto-authenticate as
+    // owner from localStorage on one of these, even if opened on the admin's
+    // own device/browser. Only an explicit ownerToken in the URL counts.
+    const ownerToken = ownerTokenFromUrl ?? (vendedorParam ? null : storedToken);
 
     fetch(`/api/companies/${slug}${ownerToken ? `?ownerToken=${ownerToken}` : ''}`)
       .then((res) => {
@@ -40,7 +43,7 @@ export default function ShowroomPage() {
         }
       })
       .catch(() => setNotFound(true));
-  }, [slug, ownerTokenFromUrl]);
+  }, [slug, ownerTokenFromUrl, vendedorParam]);
 
   if (notFound) {
     return (
@@ -149,6 +152,30 @@ export default function ShowroomPage() {
           {company.category}{company.foundedYear ? ` · Est. ${company.foundedYear}` : ''}
         </p>
       </div>
+
+      {matchedAdvisor && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 14px' }}>
+          {matchedAdvisor.photoUrl ? (
+            <img
+              src={matchedAdvisor.photoUrl}
+              alt={matchedAdvisor.name}
+              style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 28, height: 28, borderRadius: '50%', background: 'var(--bg)', border: '1px solid var(--border)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}
+            >
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)' }}>
+                {matchedAdvisor.name.split(' ').filter(Boolean).slice(0, 2).map((w: string) => w[0]?.toUpperCase()).join('')}
+              </span>
+            </div>
+          )}
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>Atendido por {matchedAdvisor.name}</p>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 8, margin: '14px 0 18px' }}>
         {waLink && (
