@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { HomeHeader } from '@/app/components/HomeHeader';
+import { ImageUploadField } from '@/app/components/ImageUploadField';
 
 export default function NewAdvisorPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -40,6 +42,7 @@ export default function NewAdvisorPage() {
 
   return (
     <div className="container">
+      <HomeHeader />
       <p style={{ fontSize: 18, fontWeight: 600, margin: '20px 0 4px' }}>Add a vendedor/asesor</p>
       <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '0 0 20px' }}>
         Cada vendedor recibe su propio link. Ejemplo: si el slug es "juan", el link será freezonehub.com/{slug}?vendedor=juan — cuando un comprador entra por ese link, el botón de WhatsApp lo conecta directamente con este vendedor.
@@ -63,8 +66,12 @@ export default function NewAdvisorPage() {
           Será parte del link: freezonehub.com/{slug}?vendedor={form.paramSlug || '...'}
         </p>
 
-        <label>URL de la foto (opcional)</label>
-        <input value={form.photoUrl} onChange={(e) => setForm({ ...form, photoUrl: e.target.value })} placeholder="Photo URL (paste an image link)" />
+        <ImageUploadField
+          label="Foto del vendedor (opcional)"
+          value={form.photoUrl}
+          ownerToken={ownerToken}
+          onChange={(url) => setForm({ ...form, photoUrl: url })}
+        />
 
         {error && <p style={{ color: '#9B1C1C', fontSize: 12, marginBottom: 12 }}>{error}</p>}
 

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
+import { HomeHeader } from '@/app/components/HomeHeader';
 
 export default function ShowroomPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -48,6 +49,7 @@ export default function ShowroomPage() {
   if (notFound) {
     return (
       <div className="container" style={{ textAlign: 'center', paddingTop: 80 }}>
+        <HomeHeader />
         <p style={{ fontSize: 15, fontWeight: 600 }}>Showroom not found</p>
         <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>This link is private or doesn't exist.</p>
       </div>
@@ -74,6 +76,7 @@ export default function ShowroomPage() {
 
   return (
     <div className="container">
+      <HomeHeader />
       {welcome && (
         <div className="card" style={{ background: 'var(--badge-green-bg)', border: 'none', marginBottom: 16 }}>
           <p style={{ fontSize: 12, color: 'var(--badge-green-text)', margin: 0, fontWeight: 600 }}>

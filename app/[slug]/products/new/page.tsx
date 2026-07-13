@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { HomeHeader } from '@/app/components/HomeHeader';
+import { ImageUploadField } from '@/app/components/ImageUploadField';
 
 type Variant = { type: 'COLOR' | 'TEXTURE'; label: string; colorHex?: string; photoUrl?: string };
 
@@ -50,6 +52,7 @@ export default function NewProductPage() {
 
   return (
     <div className="container">
+      <HomeHeader />
       <p style={{ fontSize: 18, fontWeight: 600, margin: '20px 0 20px' }}>Add a product</p>
 
       <form onSubmit={handleSubmit}>
@@ -90,7 +93,12 @@ export default function NewProductPage() {
             {v.type === 'COLOR' && (
               <input type="color" value={v.colorHex} onChange={(e) => updateVariant(i, { colorHex: e.target.value })} style={{ height: 40 }} />
             )}
-            <input value={v.photoUrl} onChange={(e) => updateVariant(i, { photoUrl: e.target.value })} placeholder="Photo URL (paste an image link)" />
+            <ImageUploadField
+              label="Photo"
+              value={v.photoUrl ?? ''}
+              ownerToken={ownerToken}
+              onChange={(url) => updateVariant(i, { photoUrl: url })}
+            />
           </div>
         ))}
         <button type="button" className="button-secondary" style={{ marginBottom: 16 }} onClick={() => setVariants([...variants, { type: 'COLOR', label: '', colorHex: '#059669', photoUrl: '' }])}>

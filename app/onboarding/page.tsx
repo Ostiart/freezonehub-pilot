@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { HomeHeader } from '@/app/components/HomeHeader';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -54,6 +55,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="container">
+      <HomeHeader />
       <p style={{ fontSize: 18, fontWeight: 600, margin: '20px 0 4px' }}>Create your free showroom</p>
       <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '0 0 20px' }}>
         Replace your PDF catalog with a link you can share with your buyers today.
