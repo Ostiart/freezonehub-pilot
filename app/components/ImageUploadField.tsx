@@ -32,8 +32,9 @@ export function ImageUploadField({
       formData.append('ownerToken', ownerToken);
 
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Upload failed');
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+      if (!res.ok) throw new Error(data.error ?? `Upload failed (${res.status})`);
       onChange(data.url);
     } catch (err: any) {
       setError(err.message ?? 'Upload failed');
